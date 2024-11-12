@@ -10,6 +10,8 @@ public class NewLesson {
 		Vertex[] graph = readGraph();
 		findLongestPath(graph);
 
+		
+
 	}
 
 	static void findLongestPath(Vertex[] tree) {
