@@ -8,7 +8,8 @@ public class NewLesson {
 
 	public static void main(String[] args) throws IOException {
 		Vertex[] graph = readGraph();
-		findLongestPath(graph);
+		findLongestPath(graph); 
+		
 	}
 
 	static void findLongestPath(Vertex[] tree) {
