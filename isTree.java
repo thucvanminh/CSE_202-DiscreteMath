@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class Test {
+public class isTree {
 	static Scanner sc = new Scanner(System.in);
 	static StringBuilder sb = new StringBuilder();
 
