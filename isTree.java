@@ -6,6 +6,7 @@ public class isTree {
 
 	public static void main(String[] args) {
 		doAction();
+		
 	}
 
 	private static void doAction() {
