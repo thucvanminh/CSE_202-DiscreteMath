@@ -6,7 +6,7 @@ public class isTree {
 
 	public static void main(String[] args) {
 		doAction();
-		
+
 	}
 
 	private static void doAction() {
@@ -34,6 +34,7 @@ public class isTree {
 		System.out.println(sb);
 
 	}
+
 
 	static void dfs(Vertex inputVertex) {
 		inputVertex.visited = true;
