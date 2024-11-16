@@ -3,8 +3,7 @@ public class Random {
 		System.out.println("Hello World");
 		System.out.println("randomthing");
 		int x = 2;
-		int y = 3;
-		int z =4;
+		
 		
 	}
 }
