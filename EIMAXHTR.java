@@ -1,4 +1,7 @@
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Scanner;
 
 public class EIMAXHTR {
@@ -22,8 +25,16 @@ public class EIMAXHTR {
 
             result[first].adjancyList.add(result[second]);
             result[second].adjancyList.add(result[first]);
+        }
+        for (Vertex each : result) {
+            Collections.sort(each.adjancyList, new Comparator<Vertex>() {
+                @Override
+                public int compare(Vertex v1, Vertex v2) {
+                    return Integer.compare(v1.id, v2.id);
+                }
 
-            
+            });
+
         }
 
         return result;
