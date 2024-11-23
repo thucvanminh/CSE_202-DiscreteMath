@@ -8,13 +8,23 @@ public class EIMAXHTR {
     static Scanner sc = new Scanner(System.in);
 
     public static void main(String[] args) {
-
         int nVertices = sc.nextInt();
-        int nEdges = sc.nextInt();
+        Vertex[] graph = readGraph(nVertices, nVertices - 1);
 
+        int minVertex = -1, maxHeight = -1;
+
+        for (int i = 0; i < nVertices; i++) {
+            int height = findHeight(graph, graph[0]);
+            if (height > maxHeight) {
+                minVertex = i;
+                maxHeight = height;
+            }
+        }
+
+        System.out.println(minVertex + " " + maxHeight);
     }
 
-    private Vertex[] readGraph(int nVertices, int nEdges) {
+    private static Vertex[] readGraph(int nVertices, int nEdges) {
         Vertex[] result = new Vertex[nVertices];
         for (int i = 0; i < nVertices; i++) {
             result[i] = new Vertex(i);
@@ -32,7 +42,6 @@ public class EIMAXHTR {
                 public int compare(Vertex v1, Vertex v2) {
                     return Integer.compare(v1.id, v2.id);
                 }
-
             });
 
         }
@@ -41,6 +50,7 @@ public class EIMAXHTR {
     }
 
     private static class Vertex {
+        private int level;
         private int id;
         private ArrayList<Vertex> adjancyList = new ArrayList<>();
         private boolean visited;
@@ -48,6 +58,7 @@ public class EIMAXHTR {
         public Vertex(int id) {
             this.id = id;
             visited = false;
+            this.level = 0;
         }
 
         public int getId() {
@@ -65,23 +76,34 @@ public class EIMAXHTR {
         public void setAdjancyList(ArrayList<Vertex> adjancyList) {
             this.adjancyList = adjancyList;
         }
+
     }
 
-    private int dfs(Vertex ver) {
-        if (ver == null) {
-            return 0;
-        }
-
-        int maxHeight = 0;
+    private static void dfs(Vertex ver) {
         ver.visited = true;
 
         for (int i = 0; i < ver.adjancyList.size(); i++) {
             if (ver.adjancyList.get(i).visited == false) {
-                int childHeight = dfs(ver.adjancyList.get(i));
-                maxHeight = Math.max(maxHeight, childHeight);
+                ver.adjancyList.get(i).level = ver.level + 1;
+                dfs(ver.adjancyList.get(i));
+
             }
         }
-        return maxHeight + 1;
 
+    }
+
+    private static int findHeight(Vertex[] graph, Vertex root) {
+        dfs(root);
+
+        int maxLevel = 0;
+        for (int i = 0; i < graph.length; i++) {
+            if (graph[i].level > maxLevel) {
+                maxLevel = graph[i].level;
+                graph[i].visited = false;
+                graph[i].level = 0;
+            }
+        }
+
+        return 0;
     }
 }
