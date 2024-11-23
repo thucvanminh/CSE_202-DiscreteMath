@@ -23,6 +23,7 @@ public class EIMAXHTR {
             result[first].adjancyList.add(result[second]);
             result[second].adjancyList.add(result[first]);
 
+            
         }
 
         return result;
