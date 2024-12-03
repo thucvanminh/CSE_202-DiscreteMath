@@ -12,9 +12,12 @@ public class EIMAXHTR {
         Vertex[] graph = readGraph(nVertices, nVertices - 1);
 
         int minVertex = -1, maxHeight = -1;
+        graph[0].level = 0;
+        //Thử tính chiều cao của cây với đỉnh i làm gốc
+       
 
         for (int i = 0; i < nVertices; i++) {
-            int height = findHeight(graph, graph[0]);
+            int height = findHeight(graph, graph[i]);
             if (height > maxHeight) {
                 minVertex = i;
                 maxHeight = height;
@@ -40,7 +43,7 @@ public class EIMAXHTR {
             Collections.sort(each.adjancyList, new Comparator<Vertex>() {
                 @Override
                 public int compare(Vertex v1, Vertex v2) {
-                    return Integer.compare(v1.id, v2.id);
+                    return Integer.compare(v1.getId(), v2.getId());
                 }
             });
 
@@ -58,7 +61,6 @@ public class EIMAXHTR {
         public Vertex(int id) {
             this.id = id;
             visited = false;
-            this.level = 0;
         }
 
         public int getId() {
@@ -81,6 +83,8 @@ public class EIMAXHTR {
 
     private static void dfs(Vertex ver) {
         ver.visited = true;
+        
+
 
         for (int i = 0; i < ver.adjancyList.size(); i++) {
             if (ver.adjancyList.get(i).visited == false) {
@@ -99,11 +103,11 @@ public class EIMAXHTR {
         for (int i = 0; i < graph.length; i++) {
             if (graph[i].level > maxLevel) {
                 maxLevel = graph[i].level;
-                graph[i].visited = false;
-                graph[i].level = 0;
             }
+            graph[i].visited = false;
+            graph[i].level = 0;
         }
 
-        return 0;
+        return maxLevel;
     }
 }
