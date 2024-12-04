@@ -6,21 +6,57 @@ import java.util.*;
 public class postOrder {
 	// EITREORD - Postorder
 	static InputReader reader;
+	static StringBuilder sb = new StringBuilder();
 
 	public static void main(String[] args) throws IOException {
 		reader = new InputReader(System.in);
-		int number = reader.nextInt();
+		Vertex[] graph = readGraph();
 
+		ArrayList<Integer> result = new ArrayList<Integer>();
+		postOrder(graph[0]);
+		System.out.println(sb);
+	}
+
+	private static void postOrder(Vertex vertex) {
+		if (vertex == null)
+			return;
+		postOrder(vertex.leftChild);
+		postOrder(vertex.rightChild);
+
+		sb.append(vertex.id + 1 + " ");
 	}
 
 	private static class Vertex {
 		private int id;
-		private ArrayList<Vertex> arr = new ArrayList<>();
+		private Vertex leftChild;
+		private Vertex rightChild;
 
 		public Vertex(int id) {
 			this.id = id;
 		}
 
+	}
+
+	private static Vertex[] readGraph() {
+		int n = reader.nextInt();
+		Vertex[] graph = new Vertex[n];
+
+		for (int i = 0; i < n; i++) {
+			graph[i] = new Vertex(i);
+		}
+
+		for (int i = 0; i < n; i++) {
+			int leftChild = reader.nextInt() - 1;
+			int rightChild = reader.nextInt() - 1;
+			if (leftChild > 0) {
+				graph[i].leftChild = graph[leftChild];
+			}
+			if (rightChild > 0) {
+				graph[i].rightChild = graph[rightChild];
+			}
+		}
+
+		return graph;
 	}
 
 	static class InputReader {

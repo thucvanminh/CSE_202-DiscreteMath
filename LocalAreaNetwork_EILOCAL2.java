@@ -2,8 +2,19 @@ import java.util.*;
 
 public class LocalAreaNetwork_EILOCAL2 {
 	static Scanner sc = new Scanner(System.in);
+	StringBuilder sb = new StringBuilder();
+
 
 	public static void main(String[] args) {
+		Vertex[] graph = readGraph();
+		dfs(graph[0]);
+		int maxDistance = -1;
+		for(Vertex n: graph){
+			if(n.distance > maxDistance){
+				maxDistance = n.distance;
+			}
+		}
+		System.out.println(maxDistance);
 
 	}
 
@@ -36,7 +47,11 @@ public class LocalAreaNetwork_EILOCAL2 {
 
 	static void dfs(Vertex v) {
 		v.visited = true;
-		for (int i = 0; i < v.adjecentEdges.size(); i++) {
+		for(Edge each : v.adjecentEdges) {
+			if(each.endpoint.visited == false) {
+				each.endpoint.distance = each.weight + v.distance;
+				dfs(each.endpoint);
+			}
 
 		}
 	}
@@ -48,8 +63,8 @@ public class LocalAreaNetwork_EILOCAL2 {
 		for (int i = 0; i < nVertices; i++) {
 			vertices[i] = new Vertex(i);
 		}
-		int m = sc.nextInt();
-		for (int i = 0; i < m; i++) {
+	
+		for (int i = 0; i < nEdges; i++) {
 			int from = sc.nextInt();
 			int to = sc.nextInt();
 			int weight = sc.nextInt();
