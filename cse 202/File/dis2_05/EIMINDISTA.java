@@ -1,74 +1,104 @@
+package dis2_05;
+
 import java.io.*;
 import java.util.*;
 
-public class EICONP {
+public class EIMINDISTA {
 
-    static InputReader reader;
+    static InputReader sc;
     static StringBuilder sb = new StringBuilder();
 
     public static void main(String[] args) throws IOException {
-        reader = new InputReader(System.in);
+        sc = new InputReader(System.in);
         Vertex[] graph = readGraph();
-        int nComponents = 0;
-        for (int i = 0; i < graph.length - 1; i++) {
-            if (graph[i].visited == false) {
-                dfs(graph[i]);
-                nComponents++;
-            }
-        }
-        System.out.println(nComponents);
-    }
 
-    static void dfs(Vertex v) {
-        v.visited = true;
-        for (Vertex w : v.adjacentVertices) {
-            if (w.visited == false) {
-                dfs(w);
+        PriorityQueue<Vertex> pq = new PriorityQueue<>((e1, e2) -> {
+            return Integer.compare(e1.cost, e2.cost);
+        });
+
+        pq.add(graph[0]);
+        graph[0].cost = 0;
+        
+        while (!pq.isEmpty()) {
+            Vertex polledV = pq.poll();
+
+            if (polledV.visited) {
+                continue;
+            }
+
+            if (polledV.cost == Integer.MAX_VALUE) {
+                break;
+            }
+
+            for (Edge e : polledV.adjList) {
+                if (e.endpoint.cost > e.weight + polledV.cost) {
+                    e.endpoint.cost = e.weight + polledV.cost;
+                    pq.add(e.endpoint);
+                }
             }
         }
+        for (int i = 1; i < graph.length; i++) {
+            if (graph[i].cost != Integer.MAX_VALUE) {
+                sb.append(graph[i].cost);
+            } else {
+                sb.append("-1");
+            }
+            sb.append(" ");
+        }
+        System.out.println(sb);
     }
 
     static Vertex[] readGraph() {
-        int nVertices = reader.nextInt();
-        int nEdges = reader.nextInt();
+        int nVertices = sc.nextInt();
+        int nEdges = sc.nextInt();
 
-        Vertex[] vertices = new Vertex[nVertices + 1];
-        for (int i = 0; i < nVertices; ++i) {
+        Vertex[] vertices = new Vertex[nVertices];
+
+        for (int i = 0; i < vertices.length; i++) {
             vertices[i] = new Vertex(i);
         }
 
-        for (int i = 0; i < nEdges; ++i) {
-            int a = reader.nextInt();
-            int b = reader.nextInt();
+        for (int i = 0; i < nEdges; i++) {
+            int u = sc.nextInt();
+            int v = sc.nextInt();
+            int w = sc.nextInt();
 
-            vertices[a].addAdjacentVertices(vertices[b]);
-            vertices[b].addAdjacentVertices(vertices[a]);
+            vertices[u].addAdjList(w, vertices[v]);
+            vertices[v].addAdjList(w, vertices[u]);
+            ;
         }
 
-        for (int i = 0; i < nVertices; i++) {
-            vertices[i].adjacentVertices.sort((v1, v2) -> {
-                int compare = Integer.compare(v1.id, v2.id);
-                return compare;
-            });
-        }
         return vertices;
     }
 
-    static class Vertex {
-        public int id;
-        public boolean visited;
-        public List<Vertex> adjacentVertices = new ArrayList<Vertex>();
+    static class Edge {
+        int weight;
+        Vertex endpoint;
 
-        public Vertex(int id) {
-            this.id = id;
-        }
-
-        public void addAdjacentVertices(Vertex vertex) {
-            adjacentVertices.add(vertex);
+        public Edge(int weight, Vertex endpoint) {
+            this.weight = weight;
+            this.endpoint = endpoint;
         }
     }
 
-    static class InputReader {
+    public static class Vertex {
+        int id;
+        boolean visited;
+        List<Edge> adjList = new ArrayList<>();
+        int cost;
+
+        public Vertex(int id) {
+            this.id = id;
+            this.cost = Integer.MAX_VALUE;
+        }
+
+        public void addAdjList(int weight, Vertex endpoint) {
+            Edge e = new Edge(weight, endpoint);
+            adjList.add(e);
+        }
+    }
+
+    public static class InputReader {
         private byte[] inbuf = new byte[2 << 23];
         public int lenbuf = 0, ptrbuf = 0;
         public InputStream is;

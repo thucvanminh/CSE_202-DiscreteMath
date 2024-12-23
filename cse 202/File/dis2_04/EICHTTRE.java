@@ -1,80 +1,89 @@
+package dis2_04;
+
 import java.io.*;
 import java.util.*;
 
-public class EICONP {
+public class EICHTTRE {
 
-    static InputReader reader;
+    static InputReader sc;
     static StringBuilder sb = new StringBuilder();
 
     public static void main(String[] args) throws IOException {
-        reader = new InputReader(System.in);
-        Vertex[] graph = readGraph();
-        int nComponents = 0;
-        for (int i = 0; i < graph.length - 1; i++) {
-            if (graph[i].visited == false) {
-                dfs(graph[i]);
-                nComponents++;
+        sc = new InputReader(System.in);
+
+        int t = sc.nextInt();
+        for (int i = 0; i < t; i++) {
+            int n = sc.nextInt();
+            int m = sc.nextInt();
+            Vertex[] graph = readGraph(n, m);
+
+            int nComp = 0;
+            for (int j = 1; j < n; j++) {
+                if (!graph[j].visited) {
+                    dfs(graph[j]);
+                    nComp++;
+                }
+            }
+
+            if (nComp == 1 && m == n - 1) {
+                sb.append("YES\n");
+            } else {
+                sb.append("NO\n");
             }
         }
-        System.out.println(nComponents);
+
+        System.out.println(sb);
     }
 
-    static void dfs(Vertex v) {
+    public static void dfs(Vertex v) {
         v.visited = true;
-        for (Vertex w : v.adjacentVertices) {
-            if (w.visited == false) {
-                dfs(w);
+        for (Vertex u : v.adjList) {
+            if (!u.visited) {
+                dfs(u);
             }
         }
     }
 
-    static Vertex[] readGraph() {
-        int nVertices = reader.nextInt();
-        int nEdges = reader.nextInt();
-
-        Vertex[] vertices = new Vertex[nVertices + 1];
-        for (int i = 0; i < nVertices; ++i) {
+    public static Vertex[] readGraph(int n, int m) {
+        
+        Vertex[] vertices = new Vertex[n];
+        for (int i = 0; i < n; ++i) {
             vertices[i] = new Vertex(i);
         }
 
-        for (int i = 0; i < nEdges; ++i) {
-            int a = reader.nextInt();
-            int b = reader.nextInt();
+        for (int i = 0; i < m; ++i) {
+            int u = sc.nextInt();
+            int v = sc.nextInt();
 
-            vertices[a].addAdjacentVertices(vertices[b]);
-            vertices[b].addAdjacentVertices(vertices[a]);
+            vertices[u].addAdjList(vertices[v]);
+            vertices[v].addAdjList(vertices[u]);
         }
 
-        for (int i = 0; i < nVertices; i++) {
-            vertices[i].adjacentVertices.sort((v1, v2) -> {
-                int compare = Integer.compare(v1.id, v2.id);
-                return compare;
-            });
-        }
         return vertices;
     }
 
-    static class Vertex {
+    public static class Vertex {
+
         public int id;
         public boolean visited;
-        public List<Vertex> adjacentVertices = new ArrayList<Vertex>();
+        public List<Vertex> adjList = new ArrayList<>();
 
         public Vertex(int id) {
             this.id = id;
         }
 
-        public void addAdjacentVertices(Vertex vertex) {
-            adjacentVertices.add(vertex);
+        public void addAdjList(Vertex v) {
+            adjList.add(v);
         }
     }
 
     static class InputReader {
+
         private byte[] inbuf = new byte[2 << 23];
         public int lenbuf = 0, ptrbuf = 0;
         public InputStream is;
 
         public InputReader(InputStream stream) throws IOException {
-
             inbuf = new byte[2 << 23];
             lenbuf = 0;
             ptrbuf = 0;
@@ -112,7 +121,7 @@ public class EICONP {
             int b = skip();
             StringBuilder sb = new StringBuilder();
             while (!(isSpaceChar(b))) { // when nextLine, (isSpaceChar(b) && b
-                                        // != ' ')
+                // != ' ')
                 sb.appendCodePoint(b);
                 b = readByte();
             }
@@ -120,8 +129,9 @@ public class EICONP {
         }
 
         private int readByte() {
-            if (lenbuf == -1)
+            if (lenbuf == -1) {
                 throw new InputMismatchException();
+            }
             if (ptrbuf >= lenbuf) {
                 ptrbuf = 0;
                 try {
@@ -129,8 +139,9 @@ public class EICONP {
                 } catch (IOException e) {
                     throw new InputMismatchException();
                 }
-                if (lenbuf <= 0)
+                if (lenbuf <= 0) {
                     return -1;
+                }
             }
             return inbuf[ptrbuf++];
         }
@@ -149,16 +160,14 @@ public class EICONP {
 
         private int skip() {
             int b;
-            while ((b = readByte()) != -1 && isSpaceChar(b))
-                ;
+            while ((b = readByte()) != -1 && isSpaceChar(b));
             return b;
         }
 
         public int nextInt() {
             int num = 0, b;
             boolean minus = false;
-            while ((b = readByte()) != -1 && !((b >= '0' && b <= '9') || b == '-'))
-                ;
+            while ((b = readByte()) != -1 && !((b >= '0' && b <= '9') || b == '-'));
             if (b == '-') {
                 minus = true;
                 b = readByte();
@@ -178,8 +187,7 @@ public class EICONP {
             long num = 0;
             int b;
             boolean minus = false;
-            while ((b = readByte()) != -1 && !((b >= '0' && b <= '9') || b == '-'))
-                ;
+            while ((b = readByte()) != -1 && !((b >= '0' && b <= '9') || b == '-'));
             if (b == '-') {
                 minus = true;
                 b = readByte();

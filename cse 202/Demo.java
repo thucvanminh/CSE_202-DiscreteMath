@@ -1,213 +1,88 @@
-import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 public class Demo {
+	static Scanner sc = new Scanner(System.in);
 
-    static InputReader reader;
-    static StringBuilder sb = new StringBuilder();
+	public static void main(String[] args) {
+		// Đọc số lượng nút trong cây
+		int n = sc.nextInt();
 
-    public static void main(String[] args) throws IOException {
-        reader = new InputReader(System.in);
-        int nTC = reader.nextInt();
-        for (int i = 0; i < nTC; i++) {
-            int nVertice = reader.nextInt();
-            int nEdge = reader.nextInt();
-            Vertex[] graph = readGraph(nVertice, nEdge);
-            int nCom=0;
-            for(Vertex v: graph){
-                if(v.visited==false){
-                    nCom++;
-                    dfs(v);
-                }
-            }
-            if(nCom==1 & nEdge==nVertice-1){
-                sb.append("Y"+"\n");
-            }
-            else{
-                sb.append("N"+"\n");
-            }
-        }
-        System.out.println(sb);
-    }
+		// Đọc preOrder và inOrder từ đầu vào
+		int[] preOrder = new int[n];
+		int[] inOrder = new int[n];
+		for (int i = 0; i < n; i++) {
+			preOrder[i] = sc.nextInt();
+		}
+		for (int i = 0; i < n; i++) {
+			inOrder[i] = sc.nextInt();
+		}
 
-    static boolean dfs(Vertex v){
-        v.visited= true;
+		// Xây dựng lại cây
+		TreeNode root = buildTreeHelper(preOrder, 0, preOrder.length - 1, inOrder, 0, inOrder.length - 1);
 
-        for(Vertex u: v.adjacentVertices){
-           if(u.visited==false){
-            dfs(u);
-           }
-        }
+		// Duyệt PostOrder
+		List<Integer> postOrder = new ArrayList<>();
+		postOrderTraversal(root, postOrder);
 
-        return false;
-    }
+		// In kết quả
+		for (int val : postOrder) {
+			System.out.print(val + " ");
+		}
+	}
 
+	// Xây dựng cây từ preOrder và inOrder
 
-    static Vertex[] readGraph(int nVertice, int nEdge){
-        int nVertices = nVertice;
-        int nEdges = nEdge;
+	static TreeNode buildTreeHelper(int[] preOrder, int preStart, int preEnd, int[] inOrder, int inStart, int inEnd) {
+		if (preStart > preEnd || inStart > inEnd)
+			return null;
 
-        Vertex[] vertices = new Vertex[nVertices];
-        for (int i = 0; i < vertices.length; i++) {
-            vertices[i] = new Vertex(i);
-        }
+		// Gốc của cây con hiện tại là phần tử đầu tiên trong preOrder
+		int rootVal = preOrder[preStart];
+		TreeNode root = new TreeNode(rootVal);
 
-        for (int i = 0; i < nEdges; i++) {
-            int a = reader.nextInt();
-            int b = reader.nextInt();
+		// Tìm vị trí của gốc trong inOrder để chia thành cây con trái và phải
+		int rootIndex = inStart;
+		while (inOrder[rootIndex] != rootVal) {
+			rootIndex++;
+		}
 
-            vertices[a].addAdjacentVertices(vertices[b]);
-            vertices[b].addAdjacentVertices(vertices[a]);
-        }
-        for(Vertex v: vertices){
-            v.adjacentVertices.sort((v1,v2)->{
-                int compare = Integer.compare(v1.id, v2.id);
-                return compare;
-            });
-        }
-        return vertices;
-    }
+		// Tính số lượng nút trong cây con trái
+		int leftTreeSize = rootIndex - inStart;
 
-    static class Vertex{
-        int id;
-        boolean visited;
-        List<Vertex> adjacentVertices;
+		// Xây dựng cây con trái
+		root.left = buildTreeHelper(preOrder, preStart + 1, preStart + leftTreeSize, inOrder, inStart, rootIndex - 1);
 
-        public Vertex(int id) {
-            this.id = id;
-            adjacentVertices = new ArrayList<>();
-        } 
-        
-        public void addAdjacentVertices(Vertex v){
-            adjacentVertices.add(v);
-        }
-    }
+		// Xây dựng cây con phải
+		root.right = buildTreeHelper(preOrder, preStart + leftTreeSize + 1, preEnd, inOrder, rootIndex + 1, inEnd);
 
-    static class InputReader {
-        private byte[] inbuf = new byte[2 << 23];
-        public int lenbuf = 0, ptrbuf = 0;
-        public InputStream is;
+		return root;
+	}
 
-        public InputReader(InputStream stream) throws IOException {
+	// Duyệt PostOrder
+	static void postOrderTraversal(TreeNode root, List<Integer> postOrder) {
+		if (root == null)
+			return;
 
-            inbuf = new byte[2 << 23];
-            lenbuf = 0;
-            ptrbuf = 0;
-            is = System.in;
-            lenbuf = is.read(inbuf);
-        }
+		// Duyệt cây con trái
+		postOrderTraversal(root.left, postOrder);
 
-        public InputReader(FileInputStream stream) throws IOException {
-            inbuf = new byte[2 << 23];
-            lenbuf = 0;
-            ptrbuf = 0;
-            is = stream;
-            lenbuf = is.read(inbuf);
-        }
+		// Duyệt cây con phải
+		postOrderTraversal(root.right, postOrder);
 
-        public boolean hasNext() throws IOException {
-            if (skip() >= 0) {
-                ptrbuf--;
-                return true;
-            }
-            return false;
-        }
+		// Thêm giá trị của nút hiện tại
+		postOrder.add(root.val);
+	}
 
-        public String nextLine() throws IOException {
-            int b = skip();
-            StringBuilder sb = new StringBuilder();
-            while (!isSpaceChar(b) && b != ' ') { // when nextLine, ()
-                sb.appendCodePoint(b);
-                b = readByte();
-            }
-            return sb.toString();
-        }
+	// Lớp đại diện cho một nút trong cây
+	static class TreeNode {
+		int val;
+		TreeNode left;
+		TreeNode right;
 
-        public String next() {
-            int b = skip();
-            StringBuilder sb = new StringBuilder();
-            while (!(isSpaceChar(b))) { // when nextLine, (isSpaceChar(b) && b
-                                        // != ' ')
-                sb.appendCodePoint(b);
-                b = readByte();
-            }
-            return sb.toString();
-        }
-
-        private int readByte() {
-            if (lenbuf == -1)
-                throw new InputMismatchException();
-            if (ptrbuf >= lenbuf) {
-                ptrbuf = 0;
-                try {
-                    lenbuf = is.read(inbuf);
-                } catch (IOException e) {
-                    throw new InputMismatchException();
-                }
-                if (lenbuf <= 0)
-                    return -1;
-            }
-            return inbuf[ptrbuf++];
-        }
-
-        private boolean isSpaceChar(int c) {
-            return !(c >= 33 && c <= 126);
-        }
-
-        private double nextDouble() {
-            return Double.parseDouble(next());
-        }
-
-        public Character nextChar() {
-            return skip() >= 0 ? (char) skip() : null;
-        }
-
-        private int skip() {
-            int b;
-            while ((b = readByte()) != -1 && isSpaceChar(b))
-                ;
-            return b;
-        }
-
-        public int nextInt() {
-            int num = 0, b;
-            boolean minus = false;
-            while ((b = readByte()) != -1 && !((b >= '0' && b <= '9') || b == '-'))
-                ;
-            if (b == '-') {
-                minus = true;
-                b = readByte();
-            }
-
-            while (true) {
-                if (b >= '0' && b <= '9') {
-                    num = num * 10 + (b - '0');
-                } else {
-                    return minus ? -num : num;
-                }
-                b = readByte();
-            }
-        }
-
-        public long nextLong() {
-            long num = 0;
-            int b;
-            boolean minus = false;
-            while ((b = readByte()) != -1 && !((b >= '0' && b <= '9') || b == '-'))
-                ;
-            if (b == '-') {
-                minus = true;
-                b = readByte();
-            }
-
-            while (true) {
-                if (b >= '0' && b <= '9') {
-                    num = num * 10 + (b - '0');
-                } else {
-                    return minus ? -num : num;
-                }
-                b = readByte();
-            }
-        }
-    }
+		TreeNode(int val) {
+			this.val = val;
+		}
+	}
 }

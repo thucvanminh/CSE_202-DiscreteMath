@@ -1,70 +1,63 @@
+package dis2_04;
+
 import java.io.*;
 import java.util.*;
 
-public class EICONP {
+public class EIBUYGIFTS {
 
-    static InputReader reader;
+    static InputReader sc;
     static StringBuilder sb = new StringBuilder();
 
     public static void main(String[] args) throws IOException {
-        reader = new InputReader(System.in);
+        sc = new InputReader(System.in);
         Vertex[] graph = readGraph();
-        int nComponents = 0;
-        for (int i = 0; i < graph.length - 1; i++) {
-            if (graph[i].visited == false) {
-                dfs(graph[i]);
-                nComponents++;
-            }
+        for (Vertex v : graph) {
+            sb.append(v.friendsNear + "\n");
         }
-        System.out.println(nComponents);
-    }
-
-    static void dfs(Vertex v) {
-        v.visited = true;
-        for (Vertex w : v.adjacentVertices) {
-            if (w.visited == false) {
-                dfs(w);
-            }
-        }
+        System.out.println(sb);
     }
 
     static Vertex[] readGraph() {
-        int nVertices = reader.nextInt();
-        int nEdges = reader.nextInt();
+        int n = sc.nextInt();
+        int m = sc.nextInt();
 
-        Vertex[] vertices = new Vertex[nVertices + 1];
-        for (int i = 0; i < nVertices; ++i) {
+        int currentDate = sc.nextInt();
+        int kDays = sc.nextInt();
+
+        Vertex[] vertices = new Vertex[n];
+        for (int i = 0; i < n; ++i) {
             vertices[i] = new Vertex(i);
+            int birthdayInput = sc.nextInt();
+            vertices[i].birthday = birthdayInput;
         }
 
-        for (int i = 0; i < nEdges; ++i) {
-            int a = reader.nextInt();
-            int b = reader.nextInt();
+        for (int i = 0; i < m; ++i) {
+            int u = sc.nextInt();
+            int v = sc.nextInt();
 
-            vertices[a].addAdjacentVertices(vertices[b]);
-            vertices[b].addAdjacentVertices(vertices[a]);
+            if (currentDate <= vertices[u].birthday) {
+                if (vertices[u].birthday - currentDate <= kDays) {
+                    vertices[v].friendsNear++;
+                }
+            }
+            if (currentDate <= vertices[v].birthday) {
+                if (vertices[v].birthday - currentDate <= kDays) {
+                    vertices[u].friendsNear++;
+                }
+            }
         }
 
-        for (int i = 0; i < nVertices; i++) {
-            vertices[i].adjacentVertices.sort((v1, v2) -> {
-                int compare = Integer.compare(v1.id, v2.id);
-                return compare;
-            });
-        }
         return vertices;
     }
 
     static class Vertex {
         public int id;
-        public boolean visited;
-        public List<Vertex> adjacentVertices = new ArrayList<Vertex>();
+        public int friendsNear;
+        public int birthday;
+        public List<Vertex> adjList = new ArrayList<Vertex>();
 
         public Vertex(int id) {
             this.id = id;
-        }
-
-        public void addAdjacentVertices(Vertex vertex) {
-            adjacentVertices.add(vertex);
         }
     }
 

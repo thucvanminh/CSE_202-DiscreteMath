@@ -1,74 +1,101 @@
+package dis2_07;
+
 import java.io.*;
 import java.util.*;
 
-public class EICONP {
+public class EIMINSPAN {
 
-    static InputReader reader;
+    static InputReader sc;
     static StringBuilder sb = new StringBuilder();
 
+    static int countVertices;
+    static int totalDis = 0;
+
     public static void main(String[] args) throws IOException {
-        reader = new InputReader(System.in);
+        sc = new InputReader(System.in);
         Vertex[] graph = readGraph();
-        int nComponents = 0;
-        for (int i = 0; i < graph.length - 1; i++) {
-            if (graph[i].visited == false) {
-                dfs(graph[i]);
-                nComponents++;
+
+        PriorityQueue<Edge> pq = new PriorityQueue<>((e1, e2) -> {
+            return Integer.compare(e1.weight, e2.weight);
+        });
+
+        Edge startEdge = new Edge(0, graph[0]);
+        pq.add(startEdge);
+
+        while (!pq.isEmpty()) {
+            Edge polledE = pq.poll();
+            if (polledE.endpoint.visited) {
+                continue;
+            }
+
+            polledE.endpoint.visited = true;
+            totalDis += polledE.weight;
+            countVertices--;
+
+            for (Edge u : polledE.endpoint.adjList) {
+                if (u.endpoint.visited == false) {
+                    pq.add(u);
+                }
             }
         }
-        System.out.println(nComponents);
-    }
 
-    static void dfs(Vertex v) {
-        v.visited = true;
-        for (Vertex w : v.adjacentVertices) {
-            if (w.visited == false) {
-                dfs(w);
-            }
+        if (countVertices == 0) {
+            System.out.println(totalDis);
+        } else {
+            System.out.println("-1");
         }
     }
 
-    static Vertex[] readGraph() {
-        int nVertices = reader.nextInt();
-        int nEdges = reader.nextInt();
+    public static Vertex[] readGraph() {
+        int n = sc.nextInt();
 
-        Vertex[] vertices = new Vertex[nVertices + 1];
-        for (int i = 0; i < nVertices; ++i) {
+        countVertices = n;
+        int m = sc.nextInt();
+
+        Vertex[] vertices = new Vertex[n];
+
+        for (int i = 0; i < vertices.length; i++) {
             vertices[i] = new Vertex(i);
         }
 
-        for (int i = 0; i < nEdges; ++i) {
-            int a = reader.nextInt();
-            int b = reader.nextInt();
+        for (int i = 0; i < m; i++) {
+            int u = sc.nextInt();
+            int v = sc.nextInt();
+            int w = sc.nextInt();
 
-            vertices[a].addAdjacentVertices(vertices[b]);
-            vertices[b].addAdjacentVertices(vertices[a]);
+            vertices[u].addAdjList(w, vertices[v]);
+            vertices[v].addAdjList(w, vertices[u]);
         }
 
-        for (int i = 0; i < nVertices; i++) {
-            vertices[i].adjacentVertices.sort((v1, v2) -> {
-                int compare = Integer.compare(v1.id, v2.id);
-                return compare;
-            });
-        }
         return vertices;
     }
 
-    static class Vertex {
-        public int id;
-        public boolean visited;
-        public List<Vertex> adjacentVertices = new ArrayList<Vertex>();
+    public static class Edge {
+        int weight;
+        Vertex endpoint;
+
+        public Edge(int weight, Vertex endpoint) {
+            this.weight = weight;
+            this.endpoint = endpoint;
+        }
+    }
+
+    public static class Vertex {
+        int id;
+        boolean visited;
+        List<Edge> adjList = new ArrayList<>();
 
         public Vertex(int id) {
             this.id = id;
         }
 
-        public void addAdjacentVertices(Vertex vertex) {
-            adjacentVertices.add(vertex);
+        public void addAdjList(int weight, Vertex endpoint) {
+            Edge e = new Edge(weight, endpoint);
+            adjList.add(e);
         }
     }
 
-    static class InputReader {
+    public static class InputReader {
         private byte[] inbuf = new byte[2 << 23];
         public int lenbuf = 0, ptrbuf = 0;
         public InputStream is;

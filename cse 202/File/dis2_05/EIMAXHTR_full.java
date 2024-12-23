@@ -1,74 +1,93 @@
+package dis2_05;
+
 import java.io.*;
 import java.util.*;
 
-public class EICONP {
+public class EIMAXHTR_full {
 
-    static InputReader reader;
+    static InputReader sc;
     static StringBuilder sb = new StringBuilder();
 
     public static void main(String[] args) throws IOException {
-        reader = new InputReader(System.in);
+        sc = new InputReader(System.in);
         Vertex[] graph = readGraph();
-        int nComponents = 0;
-        for (int i = 0; i < graph.length - 1; i++) {
-            if (graph[i].visited == false) {
-                dfs(graph[i]);
-                nComponents++;
-            }
+
+        Vertex vA = findFurthest(graph[0], graph);
+        Vertex vB = findFurthest(vA, graph);
+
+        System.out.println(Math.min(vA.id, vB.id)+" "+vB.level);
+    }
+    
+    public static Vertex findFurthest(Vertex v, Vertex[] graph){
+        Vertex maxVertex = null;
+        int maxHeight = -1;
+        for(Vertex o: graph){
+            o.level = 0;
         }
-        System.out.println(nComponents);
+
+        dfs(v);
+
+            for (Vertex u : graph) {
+                if (u.level > maxHeight) {
+                    maxHeight = u.level;
+                    maxVertex = u;
+                }
+                u.visited = false;
+            }
+        return maxVertex;
     }
 
-    static void dfs(Vertex v) {
+    public static void dfs(Vertex v) {
         v.visited = true;
-        for (Vertex w : v.adjacentVertices) {
-            if (w.visited == false) {
+
+        for (Vertex w : v.adjList) {
+            if (!w.visited) {
+                w.level = v.level + 1;
                 dfs(w);
             }
         }
     }
 
-    static Vertex[] readGraph() {
-        int nVertices = reader.nextInt();
-        int nEdges = reader.nextInt();
+    public static Vertex[] readGraph() {
+        int n = sc.nextInt();
+        int m = n - 1;
 
-        Vertex[] vertices = new Vertex[nVertices + 1];
-        for (int i = 0; i < nVertices; ++i) {
+        Vertex[] vertices = new Vertex[n];
+        for (int i = 0; i < n; ++i) {
             vertices[i] = new Vertex(i);
         }
 
-        for (int i = 0; i < nEdges; ++i) {
-            int a = reader.nextInt();
-            int b = reader.nextInt();
+        for (int i = 0; i < m; ++i) {
+            int u = sc.nextInt();
+            int v = sc.nextInt();
 
-            vertices[a].addAdjacentVertices(vertices[b]);
-            vertices[b].addAdjacentVertices(vertices[a]);
+            vertices[u].addAdjList(vertices[v]);
+            vertices[v].addAdjList(vertices[u]);
         }
 
-        for (int i = 0; i < nVertices; i++) {
-            vertices[i].adjacentVertices.sort((v1, v2) -> {
-                int compare = Integer.compare(v1.id, v2.id);
-                return compare;
-            });
+        
+        for (Vertex v : vertices) {
+            v.adjList.sort((v1, v2) -> v1.id - v2.id);
         }
         return vertices;
     }
 
-    static class Vertex {
+    public static class Vertex {
         public int id;
+        public int level = 0;
         public boolean visited;
-        public List<Vertex> adjacentVertices = new ArrayList<Vertex>();
+        public List<Vertex> adjList = new ArrayList<Vertex>();
 
         public Vertex(int id) {
             this.id = id;
         }
 
-        public void addAdjacentVertices(Vertex vertex) {
-            adjacentVertices.add(vertex);
+        public void addAdjList(Vertex v) {
+            adjList.add(v);
         }
     }
 
-    static class InputReader {
+    public static class InputReader {
         private byte[] inbuf = new byte[2 << 23];
         public int lenbuf = 0, ptrbuf = 0;
         public InputStream is;

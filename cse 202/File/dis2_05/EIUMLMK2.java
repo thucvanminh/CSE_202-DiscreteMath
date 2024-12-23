@@ -1,74 +1,96 @@
+package dis2_05;
+
 import java.io.*;
 import java.util.*;
 
-public class EICONP {
+public class EIUMLMK2 {
 
-    static InputReader reader;
+    static InputReader sc;
     static StringBuilder sb = new StringBuilder();
 
     public static void main(String[] args) throws IOException {
-        reader = new InputReader(System.in);
+        sc = new InputReader(System.in);
         Vertex[] graph = readGraph();
-        int nComponents = 0;
-        for (int i = 0; i < graph.length - 1; i++) {
-            if (graph[i].visited == false) {
-                dfs(graph[i]);
-                nComponents++;
-            }
+        long haveToPayPrice0 = sc.nextLong();
+
+        if (graph[0].willingPrice >= haveToPayPrice0) {
+            dfs(graph[0], (long) (haveToPayPrice0 * 1.1));
         }
-        System.out.println(nComponents);
+        for (Vertex v : graph) {
+            sb.append(v.products + " ");
+        }
+        System.out.println(sb);
     }
 
-    static void dfs(Vertex v) {
+    public static void dfs(Vertex v, long haveToPayPrice) {
         v.visited = true;
-        for (Vertex w : v.adjacentVertices) {
+
+        for (Vertex w : v.adjList) {
             if (w.visited == false) {
-                dfs(w);
+                if (w.willingPrice >= haveToPayPrice) {
+                    dfs(w, (long) (haveToPayPrice * 1.1));
+                } else {
+                    Queue<Vertex> q = new ArrayDeque<>();
+                    q.add(w);
+                    int cantPayProducts = 0;
+                    while (!q.isEmpty()) {
+                        cantPayProducts++;
+                        Vertex e = q.poll();
+                        e.visited = true;
+                        for (Vertex o : e.adjList) {
+                            if (o.visited == false) {
+                                q.add(o);
+                            }
+                        }
+                    }
+                    v.products += cantPayProducts;
+                }
             }
         }
+        v.products++;
     }
 
-    static Vertex[] readGraph() {
-        int nVertices = reader.nextInt();
-        int nEdges = reader.nextInt();
+    public static Vertex[] readGraph() {
+        int n = sc.nextInt();
+        int m = n - 1;
 
-        Vertex[] vertices = new Vertex[nVertices + 1];
-        for (int i = 0; i < nVertices; ++i) {
+        Vertex[] vertices = new Vertex[n];
+        for (int i = 0; i < n; ++i) {
             vertices[i] = new Vertex(i);
         }
+        for (int i = 0; i < m; ++i) {
+            int u = sc.nextInt();
+            int v = sc.nextInt();
 
-        for (int i = 0; i < nEdges; ++i) {
-            int a = reader.nextInt();
-            int b = reader.nextInt();
-
-            vertices[a].addAdjacentVertices(vertices[b]);
-            vertices[b].addAdjacentVertices(vertices[a]);
+            vertices[u].addAdjList(vertices[v]);
+            vertices[v].addAdjList(vertices[u]);
         }
 
-        for (int i = 0; i < nVertices; i++) {
-            vertices[i].adjacentVertices.sort((v1, v2) -> {
-                int compare = Integer.compare(v1.id, v2.id);
-                return compare;
-            });
+        for (int i = 0; i < vertices.length; i++) {
+            long willingPriceInput = sc.nextLong();
+            vertices[i].willingPrice = willingPriceInput;
         }
+
         return vertices;
     }
 
-    static class Vertex {
+    public static class Vertex {
         public int id;
         public boolean visited;
-        public List<Vertex> adjacentVertices = new ArrayList<Vertex>();
+        public List<Vertex> adjList = new ArrayList<Vertex>();
+        public long willingPrice;
+        int products = 0;
 
         public Vertex(int id) {
             this.id = id;
         }
 
-        public void addAdjacentVertices(Vertex vertex) {
-            adjacentVertices.add(vertex);
+        public void addAdjList(Vertex v) {
+            adjList.add(v);
         }
     }
 
-    static class InputReader {
+    public static class InputReader {
         private byte[] inbuf = new byte[2 << 23];
         public int lenbuf = 0, ptrbuf = 0;
         public InputStream is;

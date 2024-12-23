@@ -1,80 +1,91 @@
+package dis2_05;
+
 import java.io.*;
 import java.util.*;
 
-public class EICONP {
+public class EIGREENCITY {
 
-    static InputReader reader;
+    static InputReader sc;
     static StringBuilder sb = new StringBuilder();
 
     public static void main(String[] args) throws IOException {
-        reader = new InputReader(System.in);
-        Vertex[] graph = readGraph();
-        int nComponents = 0;
-        for (int i = 0; i < graph.length - 1; i++) {
-            if (graph[i].visited == false) {
-                dfs(graph[i]);
-                nComponents++;
-            }
+        sc = new InputReader(System.in);
+        int n = sc.nextInt();
+        int m = sc.nextInt();
+
+        Vertex[] graph = readGraph(n);
+
+        dfs(graph[m]);
+
+        for (Vertex v : graph) {
+            sb.append(v.id + " " + v.trees + "\n");
         }
-        System.out.println(nComponents);
+
+        System.out.println(sb);
     }
 
-    static void dfs(Vertex v) {
-        v.visited = true;
-        for (Vertex w : v.adjacentVertices) {
-            if (w.visited == false) {
+    public static void dfs(Vertex v) {
+        v.visited = true; 
+
+        for (Vertex w : v.adjList) {
+            if (!w.visited) {
                 dfs(w);
+                v.trees += w.trees;  
             }
         }
     }
 
-    static Vertex[] readGraph() {
-        int nVertices = reader.nextInt();
-        int nEdges = reader.nextInt();
+    public static Vertex[] readGraph(int n) {
+        Vertex[] vertices = new Vertex[n];
 
-        Vertex[] vertices = new Vertex[nVertices + 1];
-        for (int i = 0; i < nVertices; ++i) {
+        for (int i = 0; i < n; ++i) {
             vertices[i] = new Vertex(i);
         }
 
-        for (int i = 0; i < nEdges; ++i) {
-            int a = reader.nextInt();
-            int b = reader.nextInt();
-
-            vertices[a].addAdjacentVertices(vertices[b]);
-            vertices[b].addAdjacentVertices(vertices[a]);
+        for (int i = 0; i < n - 1; ++i) {
+            int u = sc.nextInt();
+            int v = sc.nextInt();
+            vertices[u].addAdjList(vertices[v]);
         }
 
-        for (int i = 0; i < nVertices; i++) {
-            vertices[i].adjacentVertices.sort((v1, v2) -> {
-                int compare = Integer.compare(v1.id, v2.id);
-                return compare;
-            });
+        int count = 0;
+        for (Vertex v : vertices) {
+            if (v.adjList.size() == 0) {  
+                count++;
+            }
         }
+
+        for (int i = 0; i < count; i++) {
+            int unit = sc.nextInt();
+            int tree = sc.nextInt();
+            vertices[unit].trees = tree;  
+        }
+
         return vertices;
     }
 
-    static class Vertex {
+    public static class Vertex {
         public int id;
         public boolean visited;
-        public List<Vertex> adjacentVertices = new ArrayList<Vertex>();
+        public int trees;
+        public List<Vertex> adjList = new ArrayList<>();
 
         public Vertex(int id) {
             this.id = id;
         }
 
-        public void addAdjacentVertices(Vertex vertex) {
-            adjacentVertices.add(vertex);
+        public void addAdjList(Vertex v) {
+            adjList.add(v);  
         }
     }
 
     static class InputReader {
+
         private byte[] inbuf = new byte[2 << 23];
         public int lenbuf = 0, ptrbuf = 0;
         public InputStream is;
 
         public InputReader(InputStream stream) throws IOException {
-
             inbuf = new byte[2 << 23];
             lenbuf = 0;
             ptrbuf = 0;
@@ -112,7 +123,7 @@ public class EICONP {
             int b = skip();
             StringBuilder sb = new StringBuilder();
             while (!(isSpaceChar(b))) { // when nextLine, (isSpaceChar(b) && b
-                                        // != ' ')
+                // != ' ')
                 sb.appendCodePoint(b);
                 b = readByte();
             }
@@ -120,8 +131,9 @@ public class EICONP {
         }
 
         private int readByte() {
-            if (lenbuf == -1)
+            if (lenbuf == -1) {
                 throw new InputMismatchException();
+            }
             if (ptrbuf >= lenbuf) {
                 ptrbuf = 0;
                 try {
@@ -129,8 +141,9 @@ public class EICONP {
                 } catch (IOException e) {
                     throw new InputMismatchException();
                 }
-                if (lenbuf <= 0)
+                if (lenbuf <= 0) {
                     return -1;
+                }
             }
             return inbuf[ptrbuf++];
         }
